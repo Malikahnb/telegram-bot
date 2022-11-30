@@ -3,8 +3,8 @@ from telebot import types
 
 bot = telebot.TeleBot('5626502754:AAG4vkxqLA4WBe8LUEpxSTQ79UZq4G9N-AE')
 
-first = 0
-second = 0
+first = ''
+second = ''
 result = 0
 
 
@@ -14,21 +14,78 @@ def start(message):
            f'Send me /add, /subtract, /multiply or /divide'
     bot.send_message(message.chat.id, name, parse_mode='html')
 
+    keyboard = types.InlineKeyboardMarkup()
+    key_add = types.InlineKeyboardButton(text='/add', callback_data='add')
+    keyboard.add(key_add)
+    key_sub = types.InlineKeyboardButton(text='/subtract', callback_data='subtract')
+    keyboard.add(key_sub)
+    key_mul = types.InlineKeyboardButton(text='/multiply', callback_data='multiply')
+    keyboard.add(key_mul)
+    key_div = types.InlineKeyboardButton(text='/divide', callback_data='divide')
+    keyboard.add(key_div)
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_worker(call):
+    if call.data == "add":
+        first_num()
+        add()
+    elif call.data == "subtract":
+        bot.send_message(call.message.chat.id, 'Failed')
+
+
+def first_num(message):  # asking for the input
+    global first
+    first = message.text
+    bot.send_message(message.from_user.id, f'Please send the <b>first</b> number: ', parse_mode='html')
+    # while first == 0:
+    #     try:
+    #         first = int(message.text)
+    #     except Exception:
+    #         bot.send_message(message.from_user.id, f'<b>Please send correct number!</b>', parse_mode='html')
+    bot.register_next_step_handler(message, second_num)
+
+
+def second_num(message):  # asking for the input
+    global second
+    second = message.text
+    bot.send_message(message.from_user.id, f'Please send the <b>second</b> number: ', parse_mode='html')
+    # while second == 0:
+    #     try:
+    #         second = int(message.text)
+    #     except Exception:
+    #         bot.send_message(message.from_user.id, f'<b>Please send correct number!</b>', parse_mode='html')
+    bot.register_next_step_handler(message, operations)
+
+
+@bot.message_handler(commands=['add'])
+def add(message):
+    global result
+    if message == '/add':
+        result = first + second
+        bot.send_message(message.from_user.id, f'<i>Answer: </i>{result}')
+
+
+
+
+
 
 @bot.message_handler(commands=['add', 'subtract', 'multiply', 'divide'])
 def operations(message):
-    while first == 0:
+    while first == '':
         if message.text == '/add':
-            bot.send_message(message.from_user.id, f'{first} + {second}')
+            bot.send_message(message.from_user.id, f'<i>Answer:</i>{first} + {second}', parse_mode='html')
         elif message.text == '/subtract':
-            bot.send_message(message.from_user.id, f'{first} - {second}')
+            bot.send_message(message.from_user.id, f'<i>Answer:</i>{first} - {second}', parse_mode='html')
         elif message.text == '/multiply':
-            bot.send_message(message.from_user.id, f'{first} * {second}')
+            bot.send_message(message.from_user.id, f'<i>Answer:</i>{first} * {second}', parse_mode='html')
         elif message.text == '/divide':
-            bot.send_message(message.from_user.id, f'{first} // {second}')
+            bot.send_message(message.from_user.id, f'<i>Answer:</i>{first} // {second}', parse_mode='html')
         else:
-            bot.send_message(message.from_user.id, 'Please enter the correct operation')
-    first_num(message)
+            bot.send_message(message.from_user.id, 'Please enter the correct operation', parse_mode='html')
+            break
+        first_num(message)
+
 
 # @bot.message_handler(content_types=['text'])
 # def operations(message):
@@ -45,31 +102,6 @@ def operations(message):
 #     bot.send_message(message.chat.id, result)
 
 
-def first_num(message):
-    global first
-    first = message.text
-    bot.send_message(message.from_user.id, f'Pleas e send the <b>first</b> number: ', parse_mode='html')
-    while first == 0:
-        try:
-            first = int(message.text)
-        except Exception:
-            bot.send_message(message.from_user.id, f'<b>Please send correct number!</b>', parse_mode='html')
-    bot.register_next_step_handler(message, second_num)
-
-
-def second_num(message):
-    global second
-    second = message.text
-    bot.send_message(message.from_user.id, f'Please send the <b>second</b> number: ', parse_mode='html')
-    while second == 0:
-        try:
-            second = int(message.text)
-        except Exception:
-            bot.send_message(message.from_user.id, f'<b>Please send correct number!</b>', parse_mode='html')
-    bot.register_next_step_handler(message, operations)
-
-
 bot.polling(none_stop=True)
 
-# create separate def to perform operations, and link them to the first start function
 # link to the source: https://habr.com/ru/post/442800/
