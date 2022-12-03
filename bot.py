@@ -14,24 +14,13 @@ def start(message):
            f'Send me /add, /subtract, /multiply or /divide'
     bot.send_message(message.chat.id, name, parse_mode='html')
 
-    keyboard = types.InlineKeyboardMarkup()
-    key_add = types.InlineKeyboardButton(text='/add', callback_data='add')
-    keyboard.add(key_add)
-    key_sub = types.InlineKeyboardButton(text='/subtract', callback_data='subtract')
-    keyboard.add(key_sub)
-    key_mul = types.InlineKeyboardButton(text='/multiply', callback_data='multiply')
-    keyboard.add(key_mul)
-    key_div = types.InlineKeyboardButton(text='/divide', callback_data='divide')
-    keyboard.add(key_div)
 
-
-@bot.callback_query_handler(func=lambda call: True)
-def callback_worker(call):
-    if call.data == "add":
-        first_num()
-        add()
-    elif call.data == "subtract":
-        bot.send_message(call.message.chat.id, 'Failed')
+# @bot.callback_query_handler(func=lambda call: True)
+# def callback_worker(call):
+#     if call.data == "add":
+#         add(first_num())
+#     elif call.data == "subtract":
+#         bot.send_message(call.message.chat.id, 'Failed')
 
 
 def first_num(message):  # asking for the input
@@ -60,14 +49,38 @@ def second_num(message):  # asking for the input
 
 @bot.message_handler(commands=['add'])
 def add(message):
+    first_num(message)
     global result
     if message == '/add':
-        result = first + second
-        bot.send_message(message.from_user.id, f'<i>Answer: </i>{result}')
+        result = int(first) + int(second)
+        bot.send_message(message.from_user.id, f'<i>Answer: </i>{result}', parse_mode='html')
 
 
+@bot.message_handler(commands=['subtract'])
+def add(message):
+    first_num(message)
+    global result
+    if message == '/subtract':
+        result = int(first) - int(second)
+        bot.send_message(message.from_user.id, f'<i>Answer: </i>{result}', parse_mode='html')
 
 
+@bot.message_handler(commands=['multiply'])
+def add(message):
+    first_num(message)
+    global result
+    if message == '/multiply':
+        result = int(first) * int(second)
+        bot.send_message(message.from_user.id, f'<i>Answer: </i>{result}', parse_mode='html')
+
+
+@bot.message_handler(commands=['divide'])
+def add(message):
+    first_num(message)
+    global result
+    if message == '/divide':
+        result = int(first) // int(second)
+        bot.send_message(message.from_user.id, f'<i>Answer: </i>{result}', parse_mode='html')
 
 
 @bot.message_handler(commands=['add', 'subtract', 'multiply', 'divide'])
@@ -85,21 +98,6 @@ def operations(message):
             bot.send_message(message.from_user.id, 'Please enter the correct operation', parse_mode='html')
             break
         first_num(message)
-
-
-# @bot.message_handler(content_types=['text'])
-# def operations(message):
-#     if message.text == "/add":
-#         first_num(message)
-#         return int(result) == first + second
-#     elif message.text == "/subtract":
-#         return int(result) == int(first) - int(second)
-#     elif message.text == "/multiply":
-#         return int(result) == int(first) * int(second)
-#     elif message.text == "/divide":
-#         return int(result) == int(first) / int(second)
-#
-#     bot.send_message(message.chat.id, result)
 
 
 bot.polling(none_stop=True)
